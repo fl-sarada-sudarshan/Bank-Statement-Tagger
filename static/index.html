@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Statement Agent — FlexiLoans</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>🏦 Bank Statement Agent</h1>
+  <div class="header-right">
+    <span id="ollama-status" class="ollama-status">checking Ollama…</span>
+    <span class="badge" id="ruleset-badge">— rules</span>
+  </div>
+</header>
+
+<!-- Step indicator -->
+<div class="steps">
+  <div class="step-item active" id="si-1"><div class="step-dot">1</div> Upload</div>
+  <div class="step-line" id="sl-1"></div>
+  <div class="step-item" id="si-2"><div class="step-dot">2</div> Rule Engine</div>
+  <div class="step-line" id="sl-2"></div>
+  <div class="step-item" id="si-3"><div class="step-dot">3</div> LLM Review</div>
+  <div class="step-line" id="sl-3"></div>
+  <div class="step-item" id="si-4"><div class="step-dot">4</div> Final Report</div>
+</div>
+
+<main>
+
+<!-- ════════════════════ STEP 1: UPLOAD ════════════════════ -->
+<section id="sec-1" class="section active">
+  <div class="section-title">Upload a Bank Statement</div>
+  <div class="section-sub">CSV format required: date, description, amount, type (credit/debit), balance</div>
+
+  <div class="card">
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="file-input" accept=".csv,.pdf">
+      <div class="upload-icon">📄</div>
+      <strong>Drag & drop your bank statement here</strong>
+      <p>Supports <b>CSV</b> (date, description, amount, type, balance) and <b>PDF</b> bank statements</p>
+    </div>
+    <div class="divider-row">or</div>
+    <button class="btn btn-ghost btn-full" id="sample-btn">📂 Use Sample Bank Statement (NEFT/UPI/ECS format, 6 months)</button>
+  </div>
+</section>
+
+<!-- ════════════════════ STEP 2: RULE ENGINE ════════════════════ -->
+<section id="sec-2" class="section">
+  <div class="section-title">Rule-Based Tagging</div>
+  <div class="section-sub">Applying <span id="rule-count">—</span> rules to <span id="txn-count">—</span> transactions…</div>
+
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-label">Total Transactions</div>
+      <div class="metric-value" id="m-total">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Rule-Tagged</div>
+      <div class="metric-value" style="color:var(--success)" id="m-tagged">—</div>
+      <div class="metric-sub" id="m-coverage">—% coverage</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Needs LLM Fallback</div>
+      <div class="metric-value" style="color:var(--warning)" id="m-untagged">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:600;margin-bottom:12px;">⚡ Tagging progress</div>
+    <div class="progress-wrap"><div class="progress-fill" id="rule-progress" style="width:0%"></div></div>
+    <div id="rule-status" style="font-size:13px;color:var(--muted);margin-top:6px;">Starting…</div>
+  </div>
+
+  <details id="tagged-details">
+    <summary>✅ View rule-tagged transactions</summary>
+    <div class="details-body">
+      <div class="table-wrap"><table id="tagged-table">
+        <thead><tr><th>Date</th><th>Narration</th><th>Counterparty</th><th>Debit</th><th>Credit</th><th>Balance</th><th>Transaction Categorisation</th><th>Payment</th><th>Lender</th><th>Vendor</th><th>Tag</th><th>Confidence</th></tr></thead>
+        <tbody id="tagged-body"></tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <div id="untagged-section" style="display:none;margin-top:16px;">
+    <div class="alert alert-warn" style="margin-bottom:12px;">
+      ⚠️ <strong id="untagged-count">0</strong> transactions could not be tagged by rules — LLM fallback required.
+    </div>
+    <div class="table-wrap" style="margin-bottom:16px;"><table id="untagged-table">
+      <thead><tr><th>Date</th><th>Narration</th><th>Counterparty</th><th>Amount</th><th>Type</th><th>Payment</th><th>Lender</th></tr></thead>
+      <tbody id="untagged-body"></tbody>
+    </table></div>
+
+    <div class="model-row">
+      <label>🤖 Ollama model</label>
+      <select id="model-select"><option value="">Loading models…</option></select>
+    </div>
+    <button class="btn btn-primary" id="llm-btn">🤖 Run LLM Analysis</button>
+  </div>
+
+  <div id="no-untagged" style="display:none;margin-top:16px;">
+    <div class="alert alert-ok">✅ All transactions tagged by rules — no LLM needed.</div>
+    <button class="btn btn-primary" style="margin-top:12px;" id="skip-to-report-btn">➡️ Compute Metrics</button>
+  </div>
+</section>
+
+<!-- ════════════════════ STEP 3: LLM REVIEW ════════════════════ -->
+<section id="sec-3" class="section">
+  <div class="section-title">LLM Analysis & Approval</div>
+  <div class="section-sub" id="llm-meta">Sending untagged clusters to Ollama…</div>
+
+  <!-- Thinking terminal -->
+  <div class="thinking-wrap" id="thinking-wrap">
+    <div class="thinking-header">
+      <div class="thinking-dot" id="thinking-dot"></div>
+      <span>Model is thinking</span>
+      <span id="thinking-model" style="margin-left:auto;font-size:11px;color:#64748b;"></span>
+    </div>
+    <div class="thinking-body" id="thinking-body"></div>
+  </div>
+
+  <!-- Clusters -->
+  <div id="clusters-loading" style="text-align:center;padding:30px;display:none;">
+    <div class="spinner" style="width:28px;height:28px;margin:0 auto 10px;"></div>
+    <div style="font-size:14px;color:var(--muted);">Parsing LLM response…</div>
+  </div>
+
+  <div id="review-header" style="display:none;">
+    <div class="review-progress">
+      <span id="review-count" style="font-size:13px;font-weight:600;white-space:nowrap;">0 / 0 reviewed</span>
+      <div class="review-progress-bar">
+        <div class="progress-wrap" style="margin:0;"><div class="progress-fill" id="review-progress" style="width:0%;background:var(--success);"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="clusters-container"></div>
+
+  <div id="llm-error" class="alert alert-err" style="display:none;margin-bottom:16px;"></div>
+
+  <div id="finalize-row" style="display:none;margin-top:8px;display:flex;gap:10px;">
+    <button class="btn btn-success" id="finalize-btn" disabled>▶️ Finalize & Compute Metrics</button>
+    <button class="btn btn-ghost" id="skip-deny-btn">⏭️ Deny all remaining</button>
+  </div>
+</section>
+
+<!-- ════════════════════ STEP 4: FINAL REPORT ════════════════════ -->
+<section id="sec-4" class="section">
+  <div class="section-title">Final Analysis Report</div>
+  <div class="section-sub" id="report-meta">—</div>
+
+  <!-- Cost counter -->
+  <div class="cost-row">
+    <div class="cost-card">
+      <div class="cost-label">Local Ollama cost</div>
+      <div class="cost-value">₹0.00</div>
+      <div class="cost-sub">100% free</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">Pure-LLM baseline / stmt</div>
+      <div class="cost-value" id="cost-baseline">₹—</div>
+      <div class="cost-sub">if every txn sent to LLM</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">Savings @ 50K stmts/day</div>
+      <div class="cost-value" style="color:var(--success)" id="cost-savings">₹—</div>
+      <div class="cost-sub">vs pure-LLM baseline</div>
+    </div>
+  </div>
+
+  <!-- LLM Cost Info dropdown -->
+  <details class="llm-cost-dropdown" id="llm-cost-details">
+    <summary class="llm-cost-summary">
+      <span class="llm-cost-icon">💡</span> LLM Cost Info
+      <span class="llm-cost-chevron">›</span>
+    </summary>
+    <div class="llm-cost-body">
+      <div class="llm-cost-row">
+        <span class="llm-cost-key">Claude equivalent (Sonnet 4.6)</span>
+        <span class="llm-cost-val" id="cost-cloud">₹—</span>
+      </div>
+      <div class="llm-cost-row">
+        <span class="llm-cost-key">Tokens used this run</span>
+        <span class="llm-cost-val" id="cost-tokens">—</span>
+      </div>
+      <div class="llm-cost-note">Ollama runs locally — actual cost is ₹0. Cloud equiv. shown for comparison only.</div>
+    </div>
+  </details>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="trust">🛡️ Trust Dashboard</div>
+    <div class="tab" data-tab="anomalies">⚠️ Anomalies</div>
+    <div class="tab" data-tab="transactions">📋 Transactions</div>
+    <div class="tab" data-tab="ai-analysis">🤖 AI Analysis</div>
+    <div class="tab" data-tab="learning">📈 Learning Curve</div>
+    <div class="tab" data-tab="ruleset">📜 Ruleset</div>
+  </div>
+
+  <!-- Trust -->
+  <div class="tab-panel active" id="tab-trust">
+    <div class="card" id="trust-container"></div>
+  </div>
+
+  <!-- Anomalies -->
+  <div class="tab-panel" id="tab-anomalies">
+    <div id="anomaly-container"></div>
+  </div>
+
+  <!-- Transactions -->
+  <div class="tab-panel" id="tab-transactions">
+    <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;">
+      <label style="font-size:13px;font-weight:600;color:var(--muted);">Filter tag</label>
+      <select id="txn-filter" style="border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;">
+        <option value="">All</option>
+      </select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Narration</th><th>Counterparty</th><th>Debit</th><th>Credit</th><th>Transaction Categorisation</th><th>Payment</th><th>Lender</th><th>Vendor</th><th>Tag</th><th>Source</th><th>Confidence</th></tr></thead>
+      <tbody id="final-txn-body"></tbody>
+    </table></div>
+  </div>
+
+  <!-- AI Analysis -->
+  <div class="tab-panel" id="tab-ai-analysis">
+    <div class="ai-analysis-header">
+      <div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Credit Analysis — AI Narrative Report</div>
+        <div style="font-size:13px;color:var(--muted);">Generate a professional credit narrative using your local Ollama model.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <select id="ai-model-select" style="border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:13px;background:#fff;"></select>
+        <button class="btn btn-primary" id="ai-run-btn">▶ Run Analysis</button>
+      </div>
+    </div>
+
+    <div class="thinking-wrap" id="ai-thinking-wrap" style="display:none;">
+      <div class="thinking-header">
+        <div class="thinking-dot" id="ai-thinking-dot"></div>
+        <span>Generating credit analysis…</span>
+        <span id="ai-thinking-model" style="margin-left:auto;font-size:11px;color:#64748b;"></span>
+      </div>
+      <div class="thinking-body" id="ai-thinking-body"></div>
+    </div>
+
+    <div id="ai-report-container" style="display:none;"></div>
+    <div id="ai-error" class="alert alert-err" style="display:none;margin-top:16px;"></div>
+  </div>
+
+  <!-- Learning curve -->
+  <div class="tab-panel" id="tab-learning">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="card"><div class="chart-wrap"><canvas id="chart-coverage"></canvas></div></div>
+      <div class="card"><div class="chart-wrap"><canvas id="chart-ruleset"></canvas></div></div>
+    </div>
+    <div class="card"><div class="chart-wrap"><canvas id="chart-cost"></canvas></div></div>
+  </div>
+
+  <!-- Ruleset -->
+  <div class="tab-panel" id="tab-ruleset">
+    <div id="learned-banner" style="display:none;" class="alert alert-ok" style="margin-bottom:12px;"></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>ID</th><th>Tag</th><th>Regex</th><th>Direction</th><th>Source</th><th>Priority</th></tr></thead>
+      <tbody id="ruleset-body"></tbody>
+    </table></div>
+  </div>
+
+  <div style="margin-top:24px;">
+    <button class="btn btn-ghost" id="new-stmt-btn">📤 Analyse another statement</button>
+  </div>
+</section>
+
+</main>
+
+<div id="toast"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

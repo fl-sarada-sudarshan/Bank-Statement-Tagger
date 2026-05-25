@@ -1,0 +1,642 @@
+{
+  "rules": [
+    {
+      "comment": "=== BOUNCE / RETURN (highest priority \u2014 must fire before any EMI rule) ===",
+      "id": "r_bnc_01",
+      "tag": "cheque_bounce",
+      "match": {
+        "description_regex": "(?i)(\\bRETURN\\b|\\bBOUNCE\\b|INSUFF|ECS RTN|CHQ RET|MANDATE FAIL|DISHONOUR|DISHNR)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 110,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_bnc_02",
+      "tag": "cheque_bounce",
+      "match": {
+        "description_regex": "(?i)(I/W CHQ RET|O/W CHQ RET|ECS RETURN|NACH RETURN|NACH RTN|ACH RETURN|ACH RTN|MANDATE RETURN|UNPAID)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 110,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "comment": "=== SALARY (100) ===",
+      "id": "r_sal_01",
+      "tag": "salary",
+      "match": {
+        "description_regex": "(?i)\\bNEFT\\b.*(\\bSAL\\b|SALARY|PAYROLL|STIPEND)",
+        "direction": "credit",
+        "amount_min": 10000,
+        "amount_max": null
+      },
+      "priority": 100,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_sal_02",
+      "tag": "salary",
+      "match": {
+        "description_regex": "(?i)\\b(SALARY|PAYROLL|MONTHLY.*PAY|PAY.*CREDIT|WAGES|EMOLUMENT|SALARIES)\\b",
+        "direction": "credit",
+        "amount_min": 10000,
+        "amount_max": null
+      },
+      "priority": 100,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_sal_03",
+      "tag": "salary",
+      "match": {
+        "description_regex": "(?i)(PFMS|PAY.*TREASURY|GOVT.*SAL|NPS WAGE|EPFO.*SAL|GOVERNMENT.*SALARY|CENTRAL GOVT|STATE GOVT.*PAY)",
+        "direction": "credit",
+        "amount_min": 5000,
+        "amount_max": null
+      },
+      "priority": 100,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "comment": "=== GAMBLING (90) ===",
+      "id": "r_gam_01",
+      "tag": "gambling",
+      "match": {
+        "description_regex": "(?i)(DREAM11|RUMMY CIRCLE|HEAD DIGITAL|JUNGLEE RUMMY|MY11CIRCLE|WINZO|MPL GAME|MOBILE PREMIER|FANTASY AKHADA|GAMEZY|HALAPLAY|VISION11)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 90,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_gam_02",
+      "tag": "gambling",
+      "match": {
+        "description_regex": "(?i)(BET365|1XBET|BETWAY|CASINODAYS|POKER|CASINO|PARIMATCH|SPORTSBETTING|ADDA52|SPORTSBET|BETFAIR|BETSSON|BETKIWI)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 90,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "comment": "=== EMI / LOAN REPAYMENT (88-95) ===",
+      "id": "r_emi_01",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)\\bEMI\\b",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 95,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_emi_02",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)(?:NACH|ECS|ACH).*(?:LOAN|FINANCE|FIN\\b|HOME LOAN|CAR LOAN|PERSONAL LOAN|VEHICLE LOAN|MORTGAGE)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 95,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_emi_03",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)(HDFC.*LOAN|BAJAJ FINANCE|BAJAJ FINSERV|TATA CAPITAL|CHOLAMANDALAM|MUTHOOT|HDB FIN|FULLERTON|SHRIRAM|MAHINDRA FIN|INCRED|POONAWALLA|INDIFI|EPIMONEY|LENDINGKART|KREDITBEE|MONEYVIEW|FIBE|CASHE|STASHFIN|NAVI FINSERV|ZYPE|RING CREDIT|FATAKPAY|LAZYPAY|AXIO|PREFR|SLICE|JUPITER|SMALLCASE|L&T FINANCE|HERO FINCORP|INDIABULLS|PIRAMAL|ADITYA BIRLA.*FIN|MOTILAL OSWAL.*FIN)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 95,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_emi_04",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)LOAN.*(EMI|INSTAL|REPAY|REPMT)|EMI.*LOAN|LOAN.*DEBIT",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 95,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_emi_05",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)(CREDIT CARD.*BILL|CC BILL|CARD DUES|CARD.*REPAY|CARD.*PAYMENT|CREDIT CARD.*PAY).*(BANK|FINANCE|CAPITAL|CREDIT|CARD)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 93,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_emi_06",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)(BILL.*PAY|BILLPAY|BILL PAYMENT|BIL/).*(STATE BANK|\\bSBI\\b|HDFC BANK|ICICI BANK|AXIS BANK|KOTAK|INDUSIND|RATNAKAR|RBL BANK|YES BANK|IDFC|IDBI|\\bPNB\\b|PUNJAB NATIONAL|CANARA|UCO BANK|UNION BANK|CENTRAL BANK|FEDERAL BANK|KARUR VYSYA|BANDHAN BANK|AU SMALL FINANCE|JANA BANK)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 93,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_emi_07",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)(BILL.*PAY|BILLPAY|BILL PAYMENT|BIL/).*(FINANCE|CAPITAL|HOUSING|FINCORP|FINSERV|LENDING|\\bNBFC\\b|BAJAJ|TATA CAP|HERO FIN|INDIABULLS|PIRAMAL|ADITYA BIRLA FIN|MAHINDRA FIN|SHRIRAM FIN|MUTHOOT)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 92,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_emi_08",
+      "tag": "emi_payment",
+      "match": {
+        "description_regex": "(?i)\\b(ACH|ECS|NACH)\\b.*(PVT|PRIVATE|LIMITED|\\bLTD\\b|CORP|SERVICES|SOLUTIONS|ENTERPRISES|TECHNOLOGIES)",
+        "direction": "debit",
+        "amount_min": 1000,
+        "amount_max": null
+      },
+      "priority": 88,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "comment": "=== BUSINESS INFLOW (76-86) ===",
+      "id": "r_biz_01",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)\\bRTGS\\b",
+        "direction": "credit",
+        "amount_min": 5000,
+        "amount_max": null
+      },
+      "priority": 86,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_02",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)\\bINV(?:OICE)?\\b|\\bPAYMENT.*(?:RECEIVED|SETTLED|RECEIPT)\\b|\\bAMOUNT RECEIVED\\b",
+        "direction": "credit",
+        "amount_min": 1000,
+        "amount_max": null
+      },
+      "priority": 84,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_03",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)\\bIMPS\\b.*(LTD|PVT|CORP|INDUSTRIES|ENTERPRISES|TRADING|WHOLESALE|RETAIL|JEWEL)",
+        "direction": "credit",
+        "amount_min": 1000,
+        "amount_max": null
+      },
+      "priority": 83,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_04",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)(MERCHANT SETTL|POS SETTL|BATCH SETTL|MESPOS|EDC SETTL|TERMINAL SETTL|POS CREDIT|SWIPE CREDIT|PAYMENT GATEWAY CREDIT|PG CREDIT|SETTLEMENT CREDIT|MERCHANT CREDIT)",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 85,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_05",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)(RAZORPAY|PAYU|CASHFREE|INSTAMOJO|BILLDESK|CCAVENUE|EASEBUZZ|PAYTM.*BUSINESS|PAYTM.*MERCHANT|GOOGLE.*INDIA.*DIGITAL|GOOGLE.*PAY.*SETTL|GPAY.*SETTL|PHONEPE.*SETTL|STRIPE|PAYPAL|SQUARE)",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 85,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_06",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)(CASH DEP|CASH DEPOSIT|BY CASH|CASH RECEIPT|CASH CREDIT|CASH.*DEPST|CDM DEP|ATM.*CASH DEP)",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 80,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_07",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)\\b(CLG|CLEARING|CTS|CHEQUE CREDIT|CHQ CLR|CHQ CR|CHEQUE CLEARING)\\b",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 78,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_08",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)\\bIMPS\\b",
+        "direction": "credit",
+        "amount_min": 1000,
+        "amount_max": null
+      },
+      "priority": 77,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_09",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)\\bNEFT\\b",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 76,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_biz_10",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)(UPI.*(?:REFUND|REVERSAL|CASHBACK|CREDIT BACK|RVSL)|REVERSAL.*UPI)",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 80,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_upi_cr_01",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)\\bUPI\\b",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 76,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "comment": "=== BANK INTEREST / CHARGES (70-78) ===",
+      "id": "r_int_01",
+      "tag": "other",
+      "match": {
+        "description_regex": "(?i)(\\bINT CR\\b|SB INTEREST|\\bINTEREST CREDIT\\b|\\bSAVINGS.*INT\\b|\\bINTEREST PAID\\b|FD INTEREST|RD INTEREST)",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 72,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_int_02",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(:Int\\.?\\s*Coll:|\\bINTEREST CHARGED\\b|\\bOVERDRAFT INT\\b|\\bOD INTEREST\\b|\\bOD INT\\b|\\bLOAN INTEREST\\b|\\bINTEREST DEB\\b)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 75,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_chg_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(Mob alrt Chg|Mobile Alert|SMS Chg|SMS Alert|IMPS Chg|IMPS Charge|Debit Card.*Fee|ANNUAL FEE|CHEQUE BOOK|LOCKER RENT|NEFT CHG|RTGS CHG|\\bCHRG\\b|BANK CHARGES|SERVICE CHARGE|TRANSACTION FEE|PROCESSING FEE|MAINTENANCE CHARGE|AMC CHARGE|ACCOUNT.*CHARGE)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 74,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_chg_02",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(GST ON |\\+GST$|\\bGST CHRG\\b|CGST|SGST|IGST)(?!.*CHALLAN)(?!.*PAYMENT)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": 2000
+      },
+      "priority": 73,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "comment": "=== REGULAR EXPENSES (50-72) ===",
+      "id": "r_exp_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(GIB/|GST CHALLAN|GST PAYMENT|ADVANCE TAX|INCOME TAX|TDS PAYMENT|TAX CHALLAN|OLTAS|INCOME TAX DEPT|SELF ASSESSMENT TAX|TAX PAYMENT|GOVT.*TAX)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 72,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_exp_02",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(MESPOS|POS FEE|POS.*CHARGE|POS.*SERVICE|POS.*CONV|EDC.*FEE|TERMINAL.*FEE|SWIPE.*CHARGE|MERCHANT.*FEE|RENTAL.*POS|POS.*RENTAL|PAYMENT TERMINAL)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 71,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_pos_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(\\bPOS\\b.*(DEBIT|DR|PURCHASE|SWIPE)|POS DEBIT|PURCHASE AT POS)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 65,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_atm_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(\\bATM NWD\\b|\\bNWD\\b|\\bCASH WDL\\b|\\bCASH WITHDRAWAL\\b|\\bATM.*CASH\\b|\\bCASH.*WITHDRAW\\b|\\bATM.*WITH\\b|\\bATM DEBIT\\b)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 64,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_bill_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(ELECT BILL|ELECTRICITY|MSEB|BSES|BESCOM|TNEB|PVVNL|WATER BILL|AIRTEL|\\bJIO\\b|VODAFONE|\\bVI \\b|MOBILE.*BILL|\\bDTH\\b|RECHARGE|BROADBAND|BSNL|MAHANAGAR GAS|PIPED GAS|GAS BILL|MUNICIPAL TAX|PROPERTY TAX)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 63,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_upi_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)\\bUPI\\b",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": 50000
+      },
+      "priority": 60,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_upi_02",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)\\bUPI\\b",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 55,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_imps_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)\\bIMPS\\b",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 58,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_bil_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)(BILL PAY|BILLPAY|BIL/ONL/|BILL PAYMENT|UTILITY PAYMENT|UTILITY BILL|ONLINE BILL|BILL.*PORTAL)",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 52,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_clg_01",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)\\b(CLG|CLEARING|CTS|CHEQUE DEBIT|CHQ DEB|CHQ DR|CHEQUE PAID|CHEQUE CLEARING)\\b",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 52,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "comment": "=== INTERNAL TRANSFER / OTHER (48) \u2014 lowest priority ===",
+      "id": "r_inf_01",
+      "tag": "other",
+      "match": {
+        "description_regex": "(?i)(INFT|INTERNAL.*FUND.*TRANSFER|INTERNAL.*TRANSFER|INF/INFT|OWN ACCOUNT|SELF TRANSFER|INTRA BANK|INTER.*ACCOUNT.*TRANSFER|FUND TRANSFER.*SELF|SWEEP)",
+        "direction": null,
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 48,
+      "source": "seed",
+      "confirmations": 0,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_use_13c22736",
+      "tag": "regular_expense",
+      "match": {
+        "description_regex": "(?i)FOOD|SWIGGY|ZOMATO",
+        "direction": "debit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 70,
+      "source": "user_confirmed",
+      "confirmations": 1,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_use_7989b7f5",
+      "tag": "business_inflow",
+      "match": {
+        "description_regex": "(?i)CAM|C ASH DEP-Other|CAM/18472HHR/C ASH DEP-Other",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 70,
+      "source": "user_confirmed",
+      "confirmations": 1,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_use_f9dbd8e2",
+      "tag": "other",
+      "match": {
+        "description_regex": "(?i)MMT/IMPS/",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 70,
+      "source": "user_confirmed",
+      "confirmations": 1,
+      "created_at": "2026-05-25"
+    },
+    {
+      "id": "r_use_4e420708",
+      "tag": "other",
+      "match": {
+        "description_regex": "(?i)MMT/IMPS/",
+        "direction": "credit",
+        "amount_min": null,
+        "amount_max": null
+      },
+      "priority": 70,
+      "source": "user_confirmed",
+      "confirmations": 1,
+      "created_at": "2026-05-25"
+    }
+  ]
+}

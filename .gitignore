@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.env
+*.egg-info/
+dist/
+build/
+.DS_Store
+*.skill
+run_log.json
+credit_input.json
+summary.md

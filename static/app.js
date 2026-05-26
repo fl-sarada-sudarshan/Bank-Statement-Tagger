@@ -421,22 +421,11 @@ async function runFinalize() {
 
   $("report-meta").textContent = `${state.statementId} · ${report.transactions_total} transactions analysed`;
 
-  renderCost(report.run);
   renderTrust(report.metrics);
   renderAnomalies(report.anomalies);
   renderTransactions(report.tagged_rows);
   renderRuleset(report.rules_learned);
   await renderCharts();
-}
-
-// ── Cost ──────────────────────────────────────────────────────────────────────
-function renderCost(run) {
-  if (!run) return;
-  $("cost-cloud").textContent = fmtInr(run.cloud_equiv_inr);
-  const tok = (run.llm_input_tokens||0) + (run.llm_output_tokens||0);
-  $("cost-tokens").textContent = tok ? `${tok.toLocaleString()} tokens` : "—";
-  $("cost-baseline").textContent = fmtInr(run.pure_baseline_inr);
-  $("cost-savings").textContent = fmtInr(run.projected_daily_baseline);
 }
 
 // ── Trust dashboard ───────────────────────────────────────────────────────────
@@ -544,8 +533,6 @@ async function renderCharts() {
   const labels   = log.map((_, i) => `Run ${i+1}`);
   const coverage = log.map(r => r.coverage_pct || 0);
   const ruleSize = log.map(r => r.ruleset_size_after || 0);
-  const localCost    = log.map(() => 0);
-  const baselineCost = log.map(r => r.pure_llm_baseline_inr || 0);
   const annotations  = log.map(r => r.rules_learned_this_run > 0 ? `+${r.rules_learned_this_run}` : "");
 
   const opts = (extra) => ({
@@ -597,20 +584,6 @@ async function renderCharts() {
     options: opts({ scales: { y: { title: { display: true, text: "# rules" } } } }),
   });
 
-  _charts.cost = new Chart($("chart-cost"), {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        { label: "Local Ollama (₹0)", data: localCost, borderColor: "#16a34a", borderWidth: 2, pointRadius: 5, tension: 0 },
-        { label: "Pure-LLM baseline", data: baselineCost, borderColor: "#dc2626", borderWidth: 2, borderDash: [6,3], pointRadius: 5, tension: .2 },
-      ]
-    },
-    options: opts({
-      scales: { y: { title: { display: true, text: "₹ per statement" } } },
-      plugins: { legend: { position: "top" } }
-    }),
-  });
 }
 
 // ── AI Analysis ───────────────────────────────────────────────────────────────

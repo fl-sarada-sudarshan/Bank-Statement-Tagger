@@ -50,10 +50,6 @@ function goStep(n) {
     si.classList.remove("active","done");
     if (i < n) si.classList.add("done");
     else if (i === n) si.classList.add("active");
-    if (i < 4) {
-      const sl = $(`sl-${i}`);
-      sl.classList.toggle("done", i < n);
-    }
   });
 }
 
@@ -164,7 +160,7 @@ async function doUpload(file, useSample = false) {
     </tr>`).join("");
 
   stopRuleProgress(100);
-  $("rule-status").textContent = `✅ Done — ${res.tagged} tagged by rules, ${res.untagged} need LLM fallback.`;
+  $("rule-status").textContent = `Done — ${res.tagged} tagged by rules, ${res.untagged} need LLM fallback.`;
 
   if (res.untagged > 0) {
     $("untagged-section").style.display = "block";
@@ -238,7 +234,7 @@ async function runLLM() {
       renderClusterCard(data);
       // stop dot animation once first cluster arrives
       $("thinking-dot").style.animation = "none";
-      $("thinking-dot").style.background = "#22c55e";
+      $("thinking-dot").style.background = "#00B4D8";
     }
     else if (data.type === "done") {
       evtSource.close();
@@ -255,7 +251,7 @@ async function runLLM() {
     }
     else if (data.type === "error") {
       evtSource.close();
-      $("llm-error").textContent = "❌ " + data.message;
+      $("llm-error").textContent = data.message;
       $("llm-error").style.display = "flex";
       $("thinking-dot").style.animation = "none";
       $("thinking-dot").style.background = "#ef4444";
@@ -264,7 +260,7 @@ async function runLLM() {
 
   evtSource.onerror = () => {
     evtSource.close();
-    $("llm-error").textContent = "❌ Connection to server lost.";
+    $("llm-error").textContent = "Connection to server lost.";
     $("llm-error").style.display = "flex";
   };
 
@@ -366,7 +362,7 @@ async function approveCluster(cid) {
   if (res.success) {
     state.decisions[cid] = "approved";
     card.classList.add("approved");
-    $(`actions-${cid}`).innerHTML = `<span class="decision-badge approved">✅ Approved → rule ${res.rule_id}</span>`;
+    $(`actions-${cid}`).innerHTML = `<span class="decision-badge approved">Approved — rule ${res.rule_id}</span>`;
     $("ruleset-badge").textContent = `${parseInt($("ruleset-badge").textContent) + 1} rules`;
     toast(`Rule added: ${tag}`);
     updateReviewProgress();
@@ -384,7 +380,7 @@ async function denyCluster(cid, cardEl) {
   state.decisions[cid] = "denied";
   const card = cardEl || $(`cluster-${cid}`);
   card.classList.add("denied");
-  $(`actions-${cid}`).innerHTML = `<span class="decision-badge denied">❌ Denied (used this run at medium confidence)</span>`;
+  $(`actions-${cid}`).innerHTML = `<span class="decision-badge denied">Denied (used this run at medium confidence)</span>`;
   updateReviewProgress();
   checkAllDone();
 }
@@ -524,7 +520,7 @@ async function renderRuleset(learned) {
 
   if (learned && learned.length > 0) {
     $("learned-banner").style.display = "flex";
-    $("learned-banner").textContent = `✨ ${learned.length} rule(s) added this session.`;
+    $("learned-banner").textContent = `${learned.length} rule(s) added this session.`;
   }
 
   const learnedIds = new Set((learned||[]).map(r => r.id));
@@ -594,7 +590,7 @@ async function renderCharts() {
       datasets: [{
         label: "Ruleset size",
         data: ruleSize,
-        backgroundColor: "#2563eb",
+        backgroundColor: "#00B4D8",
         borderRadius: 4,
       }]
     },
@@ -639,7 +635,7 @@ async function runAIAnalysis() {
   $("ai-error").style.display = "none";
   $("ai-thinking-wrap").style.display = "block";
   $("ai-thinking-dot").style.animation = "pulse 1.2s infinite";
-  $("ai-thinking-dot").style.background = "#22c55e";
+  $("ai-thinking-dot").style.background = "#00B4D8";
   $("ai-thinking-body").textContent = "";
   $("ai-thinking-model").textContent = model;
 
@@ -661,7 +657,7 @@ async function runAIAnalysis() {
     } else if (data.type === "error") {
       src.close();
       $("ai-thinking-wrap").style.display = "none";
-      $("ai-error").textContent = "❌ " + data.message;
+      $("ai-error").textContent = data.message;
       $("ai-error").style.display = "flex";
       $("ai-run-btn").disabled = false;
     }
@@ -670,7 +666,7 @@ async function runAIAnalysis() {
   src.onerror = () => {
     src.close();
     $("ai-thinking-wrap").style.display = "none";
-    $("ai-error").textContent = "❌ Connection lost.";
+    $("ai-error").textContent = "Connection lost.";
     $("ai-error").style.display = "flex";
     $("ai-run-btn").disabled = false;
   };
@@ -697,13 +693,13 @@ function renderAIReport(text) {
     const titleLower = s.title.toLowerCase();
 
     if (titleLower.includes("recommendation")) {
-      let cls = "conditional", badge = "⚠️ CONDITIONAL APPROVE";
-      if (/✅|APPROVE(?!\s*CONDITIONAL)/i.test(body) && !/CONDITIONAL/i.test(body)) {
-        cls = "approve"; badge = "✅ APPROVE";
-      } else if (/❌|REJECT/i.test(body)) {
-        cls = "reject"; badge = "❌ REJECT";
-      } else if (/✅.*CONDITIONAL|CONDITIONAL.*APPROVE/i.test(body)) {
-        cls = "conditional"; badge = "⚠️ CONDITIONAL APPROVE";
+      let cls = "conditional", badge = "CONDITIONAL APPROVE";
+      if (/APPROVE(?!\s*CONDITIONAL)/i.test(body) && !/CONDITIONAL/i.test(body)) {
+        cls = "approve"; badge = "APPROVE";
+      } else if (/REJECT/i.test(body)) {
+        cls = "reject"; badge = "REJECT";
+      } else if (/CONDITIONAL.*APPROVE/i.test(body)) {
+        cls = "conditional"; badge = "CONDITIONAL APPROVE";
       }
       html += `<div class="ai-recommendation ${cls}">
         <div class="ai-rec-badge">${badge}</div>
@@ -726,8 +722,74 @@ function renderAIReport(text) {
   container.style.display = "block";
 }
 
+// ── Sidebar resize + toggle ───────────────────────────────────────────────────
+function setupSidebar() {
+  const sidebar = $("sidebar");
+  const handle  = $("sidebar-resize-handle");
+  const toggle  = $("sidebar-toggle");
+  if (!sidebar) return;
+
+  const COLLAPSED_THRESHOLD = 80;
+  const MIN_WIDTH = 54;
+  const MAX_WIDTH = 320;
+  const KEY_WIDTH = "fl_sidebar_width";
+
+  function applyWidth(w, animate) {
+    if (!animate) sidebar.classList.add("resizing");
+    sidebar.style.width = w + "px";
+    sidebar.classList.toggle("is-collapsed", w < COLLAPSED_THRESHOLD);
+    if (!animate) requestAnimationFrame(() => sidebar.classList.remove("resizing"));
+    localStorage.setItem(KEY_WIDTH, w);
+  }
+
+  // Restore saved width
+  const saved = parseInt(localStorage.getItem(KEY_WIDTH));
+  if (saved) applyWidth(Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, saved)), false);
+
+  // Drag-to-resize
+  if (handle) {
+    let dragging = false, startX = 0, startW = 0;
+
+    handle.addEventListener("mousedown", e => {
+      dragging = true;
+      startX = e.clientX;
+      startW = sidebar.offsetWidth;
+      handle.classList.add("dragging");
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", e => {
+      if (!dragging) return;
+      const w = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, startW + (e.clientX - startX)));
+      applyWidth(w, false);
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove("dragging");
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      // Snap fully collapsed if below threshold
+      const w = sidebar.offsetWidth;
+      if (w < COLLAPSED_THRESHOLD) applyWidth(MIN_WIDTH, false);
+    });
+  }
+
+  // Toggle button — snap between collapsed (54px) and default (200px)
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      const w = sidebar.offsetWidth;
+      applyWidth(w < COLLAPSED_THRESHOLD ? 200 : MIN_WIDTH, true);
+    });
+  }
+}
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   init();
   setupUpload();
+  setupSidebar();
 });

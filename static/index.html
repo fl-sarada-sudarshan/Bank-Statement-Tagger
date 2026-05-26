@@ -211,42 +211,6 @@
     <div class="section-title">Final Analysis Report</div>
     <div class="section-sub" id="report-meta">—</div>
 
-    <div class="cost-row">
-      <div class="cost-card">
-        <div class="cost-label">Local Ollama cost</div>
-        <div class="cost-value">₹0.00</div>
-        <div class="cost-sub">100% free</div>
-      </div>
-      <div class="cost-card">
-        <div class="cost-label">Pure-LLM baseline / stmt</div>
-        <div class="cost-value" id="cost-baseline">₹—</div>
-        <div class="cost-sub">if every txn sent to LLM</div>
-      </div>
-      <div class="cost-card">
-        <div class="cost-label">Savings @ 50K stmts/day</div>
-        <div class="cost-value" style="color:var(--success)" id="cost-savings">₹—</div>
-        <div class="cost-sub">vs pure-LLM baseline</div>
-      </div>
-    </div>
-
-    <details class="llm-cost-dropdown" id="llm-cost-details">
-      <summary class="llm-cost-summary">
-        LLM Cost Info
-        <span class="llm-cost-chevron">›</span>
-      </summary>
-      <div class="llm-cost-body">
-        <div class="llm-cost-row">
-          <span class="llm-cost-key">Claude equivalent (Sonnet 4.6)</span>
-          <span class="llm-cost-val" id="cost-cloud">₹—</span>
-        </div>
-        <div class="llm-cost-row">
-          <span class="llm-cost-key">Tokens used this run</span>
-          <span class="llm-cost-val" id="cost-tokens">—</span>
-        </div>
-        <div class="llm-cost-note">Ollama runs locally — actual cost is ₹0. Cloud equiv. shown for comparison only.</div>
-      </div>
-    </details>
-
     <div class="tabs">
       <div class="tab active" data-tab="trust">Trust Dashboard</div>
       <div class="tab" data-tab="anomalies">Anomalies</div>
@@ -307,7 +271,6 @@
         <div class="card"><div class="chart-wrap"><canvas id="chart-coverage"></canvas></div></div>
         <div class="card"><div class="chart-wrap"><canvas id="chart-ruleset"></canvas></div></div>
       </div>
-      <div class="card"><div class="chart-wrap"><canvas id="chart-cost"></canvas></div></div>
     </div>
 
     <div class="tab-panel" id="tab-ruleset">
